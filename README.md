@@ -14,10 +14,13 @@ Then visit http://127.0.0.1:5173. The development command requires Python 3.
 
 Click the dial (or focus it and press Enter or Space) to cycle through six official colourways: Red, Black, White, Night Blue, Rose Gold and Multicolour. The last selection is saved locally.
 
+Scroll while the pointer is over the dial for continuous time adjustment, or drag horizontally across the dial for direct control. Arrow keys adjust in five-minute steps when the dial is focused. The seconds hand pauses while setting time, while the weekday indicator continues to follow the adjusted date. Use the reset icon to return the hands clockwise to the current time.
+
 ## Features
 
 - Live local hours, minutes, seconds and weekday.
 - Orbiting satellite dials with counter-rotating, upright scales.
+- Continuous scroll and horizontal-drag time adjustment with an animated clockwise reset.
 - Continuous weekday indication; outlined segments identify the weekend.
 - Numeral and bar-index variants, rounded hands and aligned colour rings.
 - Responsive layout, keyboard activation and reduced-motion support.

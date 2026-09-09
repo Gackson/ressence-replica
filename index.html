@@ -6,14 +6,24 @@
 <meta name="theme-color" content="#f5f5f5">
 <title>RESSENCE — TYPE 1</title>
 <style>
-:root { color-scheme: light; background: oklch(.974 0 0); --dial:oklch(.435 .151 21); --ink:oklch(.958 .008 100); --accent:var(--ink); --hour-ink:var(--ink); --sec-ink:var(--accent); --day-ink:var(--accent); }
+:root { color-scheme: light; background:oklch(.965 .003 250); --dial:oklch(.435 .151 21); --ink:oklch(.958 .008 100); --accent:var(--ink); --hour-ink:var(--ink); --sec-ink:var(--accent); --day-ink:var(--accent); }
 * { box-sizing:border-box; }
 html,body { margin:0; width:100%; height:100%; overflow:hidden; }
-body { display:grid; place-items:center; min-height:100svh; }
-main { display:grid; place-items:center; width:100%; height:100%; }
-button { display:block; width:min(78vmin,720px); aspect-ratio:1; padding:0; border:0; border-radius:50%; background:none; cursor:pointer; -webkit-tap-highlight-color:transparent; touch-action:manipulation; outline:none; }
-button:focus-visible { outline:2px solid oklch(.48 0 0); outline-offset:12px; }
+body { min-height:100svh; color:oklch(.25 .008 250); }
+main { display:grid; place-items:center; align-content:center; gap:clamp(1.25rem,3.2vh,2rem); width:100%; height:100%; padding:clamp(1rem,3vh,2rem); }
+.watch-stage { position:relative; }
+#watch { display:block; width:min(78vmin,calc(100svh - 8rem),720px); aspect-ratio:1; padding:0; border:0; border-radius:50%; background:none; cursor:pointer; user-select:none; -webkit-user-select:none; -webkit-tap-highlight-color:transparent; touch-action:pan-y pinch-zoom; outline:none; }
+#watch:focus-visible { outline:2px solid oklch(.48 .008 250); outline-offset:12px; }
+.reset-time { position:absolute; top:50%; left:calc(100% + .65rem); display:grid; place-items:center; width:44px; height:44px; padding:0; border:0; background:none; color:oklch(.36 .008 250); font:400 1.25rem/1 "SFMono-Regular",Consolas,"Liberation Mono",Menlo,monospace; cursor:pointer; opacity:0; visibility:hidden; transform:translate(-.4rem,-50%) scale(.96); transition:opacity 180ms cubic-bezier(.32,.72,0,1),transform 180ms cubic-bezier(.32,.72,0,1),visibility 0s linear 180ms; -webkit-tap-highlight-color:transparent; touch-action:manipulation; }
+.watch-stage.is-adjusted .reset-time { opacity:.55; visibility:visible; transform:translate(0,-50%) scale(1); transition-delay:0s; }
+.reset-time:focus-visible { outline:2px solid oklch(.48 .008 250); outline-offset:0; border-radius:50%; opacity:1; }
+.reset-time:disabled { cursor:default; }
+@media(hover:hover) and (pointer:fine) { .watch-stage.is-adjusted .reset-time:hover { opacity:1; } .watch-stage.is-dragging #watch { cursor:ew-resize; } }
 svg { display:block; width:100%; height:100%; overflow:visible; }
+.watch-meta { display:grid; justify-items:center; gap:.45rem; font-family:"SFMono-Regular",Consolas,"Liberation Mono",Menlo,monospace; text-align:center; }
+.watch-model,.watch-colour { margin:0; line-height:1; letter-spacing:0; }
+.watch-model { font-size:.8125rem; font-weight:600; }
+.watch-colour { min-height:1em; font-size:.6875rem; font-weight:400; color:oklch(.48 .008 250); }
 .face { fill:var(--dial); transition:fill 450ms ease; }
 .ink { color:var(--ink); }
 .hour { color:var(--hour-ink); }
@@ -26,11 +36,11 @@ svg { display:block; width:100%; height:100%; overflow:visible; }
 .round .seam { stroke:oklch(.3 0 0 / .35); }
 .seam { fill:none; stroke:oklch(.1 0 0 / .52); stroke-width:.52; }
 .hand { fill:currentColor; stroke:oklch(.15 0 0 / .24); stroke-width:.35; }
-@media(max-width:600px) { button { width:min(91vw,80svh); } }
-@media(prefers-reduced-motion:reduce) { .face { transition:none; } }
+@media(max-width:600px) { main { gap:1.15rem; padding:1rem; } #watch { width:min(86vw,calc(100svh - 7rem)); } .reset-time { left:auto; right:-1.75rem; } }
+@media(prefers-reduced-motion:reduce) { .face,.reset-time { transition:none; } }
 </style>
 </head>
-<body><main><button id="watch" aria-label="RESSENCE TYPE 1，点击切换配色"><svg id="dial" viewBox="-216 -216 432 432" aria-hidden="true">
+<body><main><div id="watch-stage" class="watch-stage"><button id="watch" aria-label="RESSENCE TYPE 1，点击切换配色"><svg id="dial" viewBox="-216 -216 432 432" aria-hidden="true">
 <defs>
 <radialGradient id="convex" cx="35%" cy="24%" r="82%"><stop stop-color="white" stop-opacity=".085"/><stop offset=".57" stop-color="white" stop-opacity="0"/><stop offset=".89" stop-color="black" stop-opacity=".045"/><stop offset="1" stop-color="black" stop-opacity=".25"/></radialGradient>
 <linearGradient id="rim" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#57595a"/><stop offset=".23" stop-color="#dadcdd"/><stop offset=".45" stop-color="#444647"/><stop offset=".7" stop-color="#a9acaf"/><stop offset="1" stop-color="#404244"/></linearGradient>
@@ -50,7 +60,7 @@ svg { display:block; width:100%; height:100%; overflow:visible; }
 <path class="colour-tip" d="M-1.15 -170 A1.15 1.15 0 0 1 1.15 -170 L1.35 -161 H-1.35 Z" fill="oklch(.86 .16 91)"/>
 </g>
 <circle r="210" fill="url(#convex)" pointer-events="none"/>
-</svg></button></main>
+</svg></button><button id="reset-time" class="reset-time" type="button" aria-label="回到当前时间" aria-hidden="true" tabindex="-1">↺</button></div><section class="watch-meta" aria-label="当前表盘"><p id="watch-model" class="watch-model">RESSENCE TYPE 1 SLIM</p><p id="watch-colour" class="watch-colour" aria-live="polite">RED</p></section></main>
 <script>
 'use strict';
 const NS='http://www.w3.org/2000/svg';
@@ -83,25 +93,58 @@ for(let i=0;i<12;i++)line($('second-scale'),43,49,i*30,i===0?3:2);
 for(let i=0;i<7;i++){let a=i*360/7+4,b=(i+1)*360/7-4;let p=polar(47,a),q=polar(47,b);let d=`M${p} A47 47 0 0 1 ${q}`;el('path',{d,class:'engraving','stroke-width':4.4},$('day-scale'));if(i>=5)el('path',{d,fill:'none',stroke:multi?bands[3]:round?'oklch(.46 .067 165)':'var(--dial)','stroke-width':2,'stroke-linecap':'round'},$('day-scale'));}
 }
 const themes=[
-{id:'red',name:'Slim Red 红色',dial:'oklch(.435 .151 21)',ink:'oklch(.96 .009 100)'},
-{id:'black',name:'Black 黑色',dial:'oklch(.205 .002 260)',ink:'oklch(.95 .008 100)'},
-{id:'white',name:'Slim White 白色',dial:'oklch(.949 .002 260)',ink:'oklch(.22 .002 260)'},
-{id:'blue',name:'Night Blue 夜蓝',dial:'oklch(.335 .06 251)',ink:'oklch(.94 .009 100)',accent:'oklch(.715 .178 48)'},
-{id:'rose-gold',name:'Round Rose Gold 玫瑰金',dial:'oklch(.737 .07 53)',ink:'oklch(.975 .005 90)'},
-{id:'multicolour',name:'Round Multicolour 多彩',dial:'oklch(.96 .002 260)',ink:'oklch(.965 .003 240)'}
+{id:'red',name:'Slim Red 红色',model:'RESSENCE TYPE 1 SLIM',colour:'RED',dial:'oklch(.435 .151 21)',ink:'oklch(.96 .009 100)'},
+{id:'black',name:'Black 黑色',model:'RESSENCE TYPE 1 SLIM',colour:'BLACK',dial:'oklch(.205 .002 260)',ink:'oklch(.95 .008 100)'},
+{id:'white',name:'Slim White 白色',model:'RESSENCE TYPE 1 SLIM',colour:'WHITE',dial:'oklch(.949 .002 260)',ink:'oklch(.22 .002 260)'},
+{id:'blue',name:'Night Blue 夜蓝',model:'RESSENCE TYPE 1 SLIM',colour:'NIGHT BLUE',dial:'oklch(.335 .06 251)',ink:'oklch(.94 .009 100)',accent:'oklch(.715 .178 48)'},
+{id:'rose-gold',name:'Round Rose Gold 玫瑰金',model:'RESSENCE TYPE 1 ROUND',colour:'ROSE GOLD',dial:'oklch(.737 .07 53)',ink:'oklch(.975 .005 90)'},
+{id:'multicolour',name:'Round Multicolour 多彩',model:'RESSENCE TYPE 1 ROUND',colour:'MULTICOLOUR',dial:'oklch(.96 .002 260)',ink:'oklch(.965 .003 240)'}
 ];
 let themeIndex=0;try{const saved=localStorage.getItem('ressence-colour');let found=themes.findIndex(t=>t.id===saved);if(found>=0)themeIndex=found;}catch{}
-function setTheme(){const t=themes[themeIndex],s=document.documentElement.style;s.setProperty('--dial',t.dial);s.setProperty('--ink',t.ink);s.setProperty('--accent',t.accent||t.ink);s.setProperty('--hour-ink',t.hour||t.ink);s.setProperty('--sec-ink',t.second||t.accent||t.ink);s.setProperty('--day-ink',t.day||t.accent||t.ink);$('watch').dataset.colour=t.id;updateScales(t.id);try{localStorage.setItem('ressence-colour',t.id);}catch{}lastLabel='';}
-$('watch').addEventListener('click',()=>{themeIndex=(themeIndex+1)%themes.length;setTheme();render(new Date());});
+function setTheme(){const t=themes[themeIndex],s=document.documentElement.style;s.setProperty('--dial',t.dial);s.setProperty('--ink',t.ink);s.setProperty('--accent',t.accent||t.ink);s.setProperty('--hour-ink',t.hour||t.ink);s.setProperty('--sec-ink',t.second||t.accent||t.ink);s.setProperty('--day-ink',t.day||t.accent||t.ink);$('watch').dataset.colour=t.id;$('watch-model').textContent=t.model;$('watch-colour').textContent=t.colour;updateScales(t.id);try{localStorage.setItem('ressence-colour',t.id);}catch{}lastLabel='';}
 // At zero minutes the hours sit below centre; the two small satellites sit above.
 $('hour-position').setAttribute('transform','translate(0 73)');
 $('second-position').setAttribute('transform','translate(-102 -52)');
 $('day-position').setAttribute('transform','translate(102 -52)');
 function angles(date){const seconds=date.getSeconds()+date.getMilliseconds()/1000;const minutes=date.getMinutes()+seconds/60;const hours=date.getHours()+minutes/60;const weekday=(date.getDay()+6)%7;return {minute:minutes*6,hour:(hours%12)*30,second:seconds*6,day:(weekday+hours/24)*360/7};}
 let lastLabel='';
-function render(date){let a=angles(date);$('carrier').setAttribute('transform',`rotate(${a.minute})`);for(let id of ['hour','second','day']){$(`${id}-upright`).setAttribute('transform',`rotate(${-a.minute})`);$(`${id}-hand`).setAttribute('transform',`rotate(${a[id]})`);$(`${id}-tip`).setAttribute('transform',`rotate(${a[id]})`);}let label=date.toLocaleString('zh-CN',{hour12:false,weekday:'long',hour:'2-digit',minute:'2-digit',second:'2-digit'});if(label!==lastLabel){$('watch').setAttribute('aria-label',`${label}，${themes[themeIndex].name}。点击或按回车键切换配色。`);lastLabel=label;}}
-const reduced=matchMedia('(prefers-reduced-motion: reduce)');let frame=0,previous=0;
-function tick(timestamp){if(!reduced.matches||timestamp-previous>=1000){render(new Date());previous=timestamp;}frame=requestAnimationFrame(tick);}
-document.addEventListener('visibilitychange',()=>{cancelAnimationFrame(frame);if(!document.hidden){render(new Date());frame=requestAnimationFrame(tick);}});
-setTheme();render(new Date());frame=requestAnimationFrame(tick);
+function draw(a,date){$('carrier').setAttribute('transform',`rotate(${a.minute})`);for(let id of ['hour','second','day']){$(`${id}-upright`).setAttribute('transform',`rotate(${-a.minute})`);$(`${id}-hand`).setAttribute('transform',`rotate(${a[id]})`);$(`${id}-tip`).setAttribute('transform',`rotate(${a[id]})`);}let label=date.toLocaleString('zh-CN',{hour12:false,weekday:'long',hour:'2-digit',minute:'2-digit',second:'2-digit'});if(label!==lastLabel){$('watch').setAttribute('aria-label',`${label}，${themes[themeIndex].name}。滚动滚轮、左右拖动或使用方向键调整时间，点击或按回车键切换配色。`);lastLabel=label;}}
+function render(date){const a=angles(date);if(frozenSecond!==null)a.second=frozenSecond;draw(a,date);}
+const reduced=matchMedia('(prefers-reduced-motion: reduce)');
+const MINUTE=60000;
+const WHEEL_MS_PER_PIXEL=3000;
+const DRAG_MS_PER_PIXEL=MINUTE;
+let targetOffset=0,displayedOffset=0,frozenSecond=null,resetMotion=null,dragState=null,suppressClick=false,frame=0,lastFrame=0,lastRender=0;
+function setAdjustedState(adjusted){$('watch-stage').classList.toggle('is-adjusted',adjusted);$('reset-time').tabIndex=adjusted?0:-1;$('reset-time').setAttribute('aria-hidden',String(!adjusted));}
+function displayDate(){return new Date(Date.now()+displayedOffset);}
+function setTimeOffset(offset,immediate=false){if(frozenSecond===null&&Math.abs(offset)>1)frozenSecond=angles(new Date()).second;targetOffset=offset;if(immediate||reduced.matches)displayedOffset=targetOffset;const adjusted=Math.abs(targetOffset)>1||Math.abs(displayedOffset)>1;if(!adjusted)frozenSecond=null;setAdjustedState(adjusted);lastLabel='';if(immediate||reduced.matches)render(displayDate());}
+function adjustTime(minutes,immediate=false){if(resetMotion)return;setTimeOffset(targetOffset+minutes*MINUTE,immediate);}
+function resetTime(){
+if(resetMotion||(Math.abs(targetOffset)<=1&&Math.abs(displayedOffset)<=1))return;
+if(reduced.matches){targetOffset=displayedOffset=0;frozenSecond=null;setAdjustedState(false);lastLabel='';render(new Date());return;}
+const now=new Date(),from=angles(displayDate()),target=angles(now),to={};
+if(frozenSecond!==null)from.second=frozenSecond;
+for(const key of Object.keys(from)){to[key]=target[key];if(to[key]<from[key])to[key]+=360;}
+resetMotion={start:performance.now(),duration:1400,from,to};
+targetOffset=0;
+$('reset-time').disabled=true;
+}
+$('watch').addEventListener('click',()=>{if(suppressClick){suppressClick=false;return;}themeIndex=(themeIndex+1)%themes.length;setTheme();render(displayDate());});
+$('watch').addEventListener('wheel',event=>{event.preventDefault();if(resetMotion)return;const unit=event.deltaMode===1?16:event.deltaMode===2?innerHeight:1,delta=Math.max(-240,Math.min(240,event.deltaY*unit));setTimeOffset(targetOffset-delta*WHEEL_MS_PER_PIXEL);},{passive:false});
+$('watch').addEventListener('keydown',event=>{const direction={ArrowUp:1,ArrowRight:1,ArrowDown:-1,ArrowLeft:-1}[event.key];if(direction){event.preventDefault();adjustTime(direction*5,true);}});
+$('watch').addEventListener('pointerdown',event=>{if(resetMotion||!event.isPrimary||event.button!==0)return;dragState={id:event.pointerId,startX:event.clientX,startOffset:targetOffset,moved:false};$('watch').setPointerCapture(event.pointerId);$('watch-stage').classList.add('is-dragging');});
+$('watch').addEventListener('pointermove',event=>{if(!dragState||event.pointerId!==dragState.id)return;const delta=event.clientX-dragState.startX;if(Math.abs(delta)>3)dragState.moved=true;if(dragState.moved){event.preventDefault();setTimeOffset(dragState.startOffset+delta*DRAG_MS_PER_PIXEL,true);}});
+function endDrag(event,cancelled=false){if(!dragState||event.pointerId!==dragState.id)return;if($('watch').hasPointerCapture(event.pointerId))$('watch').releasePointerCapture(event.pointerId);suppressClick=!cancelled&&dragState.moved;if(suppressClick)setTimeout(()=>{suppressClick=false;},0);dragState=null;$('watch-stage').classList.remove('is-dragging');}
+$('watch').addEventListener('pointerup',event=>endDrag(event));
+$('watch').addEventListener('pointercancel',event=>endDrag(event,true));
+$('reset-time').addEventListener('click',resetTime);
+function tick(timestamp){
+const elapsed=lastFrame?Math.min(64,timestamp-lastFrame):16;
+if(resetMotion){const p=Math.min(1,(timestamp-resetMotion.start)/resetMotion.duration),eased=1-Math.pow(1-p,5),a={};for(const key of Object.keys(resetMotion.from))a[key]=resetMotion.from[key]+(resetMotion.to[key]-resetMotion.from[key])*eased;draw(a,new Date());if(p===1){resetMotion=null;targetOffset=displayedOffset=0;frozenSecond=null;$('reset-time').disabled=false;setAdjustedState(false);lastLabel='';}}
+else{if(!dragState&&!reduced.matches){displayedOffset+=(targetOffset-displayedOffset)*(1-Math.exp(-elapsed/90));if(Math.abs(targetOffset-displayedOffset)<1)displayedOffset=targetOffset;}else if(reduced.matches)displayedOffset=targetOffset;const adjusted=Math.abs(targetOffset)>1||Math.abs(displayedOffset)>1;if(!adjusted&&frozenSecond!==null){frozenSecond=null;setAdjustedState(false);lastLabel='';}if(!reduced.matches||timestamp-lastRender>=1000||displayedOffset!==targetOffset){render(displayDate());lastRender=timestamp;}}
+lastFrame=timestamp;
+frame=requestAnimationFrame(tick);
+}
+document.addEventListener('visibilitychange',()=>{cancelAnimationFrame(frame);if(!document.hidden){if(resetMotion){resetMotion=null;targetOffset=displayedOffset=0;frozenSecond=null;setAdjustedState(false);}$('reset-time').disabled=false;lastFrame=0;render(displayDate());frame=requestAnimationFrame(tick);}});
+setTheme();setAdjustedState(false);render(displayDate());frame=requestAnimationFrame(tick);
 </script></body></html>
