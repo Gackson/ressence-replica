@@ -4,26 +4,30 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="theme-color" content="#f5f5f5">
+<script>
+// Restore before the first paint so a saved dark background never flashes light.
+try{const mode=localStorage.getItem('ressence-background');if(['light','dark','dial','system'].includes(mode))document.documentElement.dataset.background=mode;}catch{}
+</script>
 <title>RESSENCE — TYPE 1</title>
 <style>
-:root { color-scheme: light; background:oklch(.965 .003 250); --dial:oklch(.435 .151 21); --ink:oklch(.958 .008 100); --accent:var(--ink); --hour-ink:var(--ink); --sec-ink:var(--accent); --day-ink:var(--accent); }
+:root { color-scheme:light; --page:oklch(.965 .003 250); --page-ink:oklch(.25 .008 250); --page-muted:oklch(.45 .008 250); background:var(--page); --dial:oklch(.435 .151 21); --ink:oklch(.958 .008 100); --accent:var(--ink); --hour-ink:var(--ink); --sec-ink:var(--accent); --day-ink:var(--accent); }
 * { box-sizing:border-box; }
 html,body { margin:0; width:100%; height:100%; overflow:hidden; }
-body { min-height:100svh; color:oklch(.25 .008 250); }
+body { min-height:100svh; color:var(--page-ink); }
 main { display:grid; place-items:center; align-content:center; gap:clamp(1.25rem,3.2vh,2rem); width:100%; height:100%; padding:clamp(1rem,3vh,2rem); }
 .watch-stage { position:relative; }
 #watch { display:block; width:min(78vmin,calc(100svh - 8rem),720px); aspect-ratio:1; padding:0; border:0; border-radius:50%; background:none; cursor:pointer; user-select:none; -webkit-user-select:none; -webkit-tap-highlight-color:transparent; touch-action:pan-y pinch-zoom; outline:none; }
-#watch:focus-visible { outline:2px solid oklch(.48 .008 250); outline-offset:12px; }
-.reset-time { position:absolute; top:50%; left:calc(100% + .65rem); display:grid; place-items:center; width:44px; height:44px; padding:0; border:0; background:none; color:oklch(.36 .008 250); font:400 1.25rem/1 "SFMono-Regular",Consolas,"Liberation Mono",Menlo,monospace; cursor:pointer; opacity:0; visibility:hidden; transform:translate(-.4rem,-50%) scale(.96); transition:opacity 180ms cubic-bezier(.32,.72,0,1),transform 180ms cubic-bezier(.32,.72,0,1),visibility 0s linear 180ms; -webkit-tap-highlight-color:transparent; touch-action:manipulation; }
+#watch:focus-visible { outline:2px solid var(--page-ink); outline-offset:12px; }
+.reset-time { position:absolute; top:50%; left:calc(100% + .65rem); display:grid; place-items:center; width:44px; height:44px; padding:0; border:0; background:none; color:var(--page-ink); font:400 1.25rem/1 "SFMono-Regular",Consolas,"Liberation Mono",Menlo,monospace; cursor:pointer; opacity:0; visibility:hidden; transform:translate(-.4rem,-50%) scale(.96); transition:opacity 180ms cubic-bezier(.32,.72,0,1),transform 180ms cubic-bezier(.32,.72,0,1),visibility 0s linear 180ms; -webkit-tap-highlight-color:transparent; touch-action:manipulation; }
 .watch-stage.is-adjusted .reset-time { opacity:.55; visibility:visible; transform:translate(0,-50%) scale(1); transition-delay:0s; }
-.reset-time:focus-visible { outline:2px solid oklch(.48 .008 250); outline-offset:0; border-radius:50%; opacity:1; }
+.reset-time:focus-visible { outline:2px solid var(--page-ink); outline-offset:0; border-radius:50%; opacity:1; }
 .reset-time:disabled { cursor:default; }
 @media(hover:hover) and (pointer:fine) { .watch-stage.is-adjusted .reset-time:hover { opacity:1; } .watch-stage.is-dragging #watch { cursor:ew-resize; } }
 svg { display:block; width:100%; height:100%; overflow:visible; }
 .watch-meta { display:grid; justify-items:center; gap:.45rem; font-family:"SFMono-Regular",Consolas,"Liberation Mono",Menlo,monospace; text-align:center; }
 .watch-model,.watch-colour { margin:0; line-height:1; letter-spacing:0; }
 .watch-model { font-size:.8125rem; font-weight:600; }
-.watch-colour { min-height:1em; font-size:.6875rem; font-weight:400; color:oklch(.48 .008 250); }
+.watch-colour { min-height:1em; font-size:.6875rem; font-weight:400; color:var(--page-muted); }
 .face { fill:var(--dial); transition:fill 450ms ease; }
 .ink { color:var(--ink); }
 .hour { color:var(--hour-ink); }
@@ -38,6 +42,28 @@ svg { display:block; width:100%; height:100%; overflow:visible; }
 .hand { fill:currentColor; stroke:oklch(.15 0 0 / .24); stroke-width:.35; }
 @media(max-width:600px) { main { gap:1.15rem; padding:1rem; } #watch { width:min(86vw,calc(100svh - 7rem)); } .reset-time { left:auto; right:-1.75rem; } }
 @media(prefers-reduced-motion:reduce) { .face,.reset-time { transition:none; } }
+
+:root[data-tone="dark"],:root[data-background="dark"] { color-scheme:dark; --page:oklch(.235 .005 250); --page-ink:oklch(.96 0 0); --page-muted:oklch(.82 0 0); }
+@media(prefers-color-scheme:dark) { :root:not([data-background]),:root[data-background="system"] { color-scheme:dark; --page:oklch(.235 .005 250); --page-ink:oklch(.96 0 0); --page-muted:oklch(.82 0 0); } }
+.corner-tools { position:fixed; left:0; bottom:0; padding:32px max(20px,env(safe-area-inset-left)) max(20px,env(safe-area-inset-bottom)); z-index:1; }
+.tool-row { display:flex; gap:8px; }
+.tool { position:relative; display:grid; place-items:center; width:44px; height:44px; border:0; border-radius:50%; padding:13px; background:transparent; color:var(--page-ink); cursor:pointer; text-decoration:none; opacity:.55; transition:opacity 180ms cubic-bezier(.32,.72,0,1); -webkit-tap-highlight-color:transparent; touch-action:manipulation; }
+.tool svg { width:18px; height:18px; fill:none; stroke:currentColor; stroke-width:1.5; stroke-linecap:round; stroke-linejoin:round; }
+@media(hover:hover) and (pointer:fine) { .tool:hover { opacity:1; } }
+.tool:focus-visible { opacity:1; outline-offset:0; }
+.tool:focus-visible,.home-dialog button:focus-visible,.home-dialog input:focus-visible { outline:2px solid var(--page-ink); outline-offset:3px; }
+@media(hover:hover) and (pointer:fine) { .tool-row { opacity:0; transition:opacity 500ms cubic-bezier(.32,.72,0,1); } .corner-tools:hover .tool-row,.corner-tools:has(:focus-visible) .tool-row { opacity:1; } }
+.home-dialog { width:min(420px,calc(100vw - 32px)); max-height:calc(100svh - 32px); padding:26px; border:1px solid var(--page-muted); border-radius:12px; background:var(--page); color:var(--page-ink); font:14px/1.7 system-ui,sans-serif; }
+.home-dialog::backdrop { background:oklch(0 0 0 / .45); }
+.home-dialog h2 { margin:0 0 12px; font-size:20px; text-wrap:balance; }
+.home-dialog p { margin:12px 0; text-wrap:pretty; }
+.home-dialog label { display:block; margin-top:18px; }
+.home-dialog input { width:100%; padding:10px; margin:6px 0 14px; border:1px solid var(--page-muted); border-radius:6px; background:transparent; color:inherit; font:inherit; }
+.dialog-actions { display:flex; justify-content:flex-end; gap:10px; }
+.home-dialog button { min-height:44px; padding:8px 14px; border:1px solid currentColor; border-radius:6px; background:transparent; color:inherit; font:inherit; cursor:pointer; }
+#copy-home { background:var(--page-ink); color:var(--page); }
+.sr-only { position:absolute; width:1px; height:1px; padding:0; margin:-1px; overflow:hidden; clip-path:inset(50%); white-space:nowrap; border:0; }
+@media(prefers-reduced-motion:reduce) { .tool-row,.tool { transition:none; } }
 </style>
 </head>
 <body><main><div id="watch-stage" class="watch-stage"><button id="watch" aria-label="RESSENCE TYPE 1，点击切换配色"><svg id="dial" viewBox="-216 -216 432 432" aria-hidden="true">
@@ -61,6 +87,14 @@ svg { display:block; width:100%; height:100%; overflow:visible; }
 </g>
 <circle r="210" fill="url(#convex)" pointer-events="none"/>
 </svg></button><button id="reset-time" class="reset-time" type="button" aria-label="回到当前时间" aria-hidden="true" tabindex="-1">↺</button></div><section class="watch-meta" aria-label="当前表盘"><p id="watch-model" class="watch-model">RESSENCE TYPE 1 SLIM</p><p id="watch-colour" class="watch-colour" aria-live="polite">RED</p></section></main>
+<nav class="corner-tools" aria-label="页面工具"><div class="tool-row">
+<a class="tool" href="https://github.com/Gackson" target="_blank" rel="noopener noreferrer" aria-label="GitHub 主页（在新标签页打开）"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 19c-4 1.2-4-2-5-2.5M15 22v-3.5c0-1 .1-1.6-.5-2.2 3.2-.4 6.5-1.6 6.5-7A5.4 5.4 0 0 0 19.5 5c.2-1 .2-2-.1-3-1.5 0-3.2 1-4 1.6a14 14 0 0 0-6.8 0C7.8 3 6.1 2 4.6 2c-.3 1-.3 2-.1 3A5.4 5.4 0 0 0 3 9.3c0 5.4 3.3 6.6 6.5 7-.6.6-.5 1.2-.5 2.2V22"/></svg></a>
+<button class="tool" id="set-home" type="button" aria-label="设为浏览器主页" aria-haspopup="dialog"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m3 10 9-7 9 7M5 9v12h5v-7h4v7h5V9"/></svg></button>
+<button class="tool" id="background-mode" type="button" aria-label="背景：跟随系统"><svg id="background-icon" viewBox="0 0 24 24" aria-hidden="true"></svg></button>
+</div></nav>
+<span id="background-status" class="sr-only" role="status"></span>
+<dialog id="home-dialog" class="home-dialog" aria-labelledby="home-title" aria-describedby="home-help"><h2 id="home-title">设为浏览器主页</h2><p id="home-help">浏览器需要你在设置中手动指定主页。复制下方地址后，按对应步骤粘贴即可。</p><p>Chrome：设置 → 外观 → 显示“主页”按钮 → 输入网址。若希望启动时打开，前往“启动时”添加此页面。</p><p>Safari（Mac）：设置 → 通用 → 主页。</p><p>Edge / Firefox：在设置中搜索“主页”，填写此地址。手机浏览器若不支持自定义主页，可使用“添加到主屏幕”。</p><label for="home-url">当前页面地址</label><input id="home-url" readonly><div class="dialog-actions"><button id="close-home" type="button" autofocus>关闭</button><button id="copy-home" type="button">复制地址</button></div><p id="copy-status" role="status"></p></dialog>
+
 <script>
 'use strict';
 const NS='http://www.w3.org/2000/svg';
@@ -101,7 +135,31 @@ const themes=[
 {id:'multicolour',name:'Round Multicolour 多彩',model:'RESSENCE TYPE 1 ROUND',colour:'MULTICOLOUR',dial:'oklch(.96 .002 260)',ink:'oklch(.965 .003 240)'}
 ];
 let themeIndex=0;try{const saved=localStorage.getItem('ressence-colour');let found=themes.findIndex(t=>t.id===saved);if(found>=0)themeIndex=found;}catch{}
-function setTheme(){const t=themes[themeIndex],s=document.documentElement.style;s.setProperty('--dial',t.dial);s.setProperty('--ink',t.ink);s.setProperty('--accent',t.accent||t.ink);s.setProperty('--hour-ink',t.hour||t.ink);s.setProperty('--sec-ink',t.second||t.accent||t.ink);s.setProperty('--day-ink',t.day||t.accent||t.ink);$('watch').dataset.colour=t.id;$('watch-model').textContent=t.model;$('watch-colour').textContent=t.colour;updateScales(t.id);try{localStorage.setItem('ressence-colour',t.id);}catch{}lastLabel='';}
+function setTheme(){const t=themes[themeIndex],s=document.documentElement.style;s.setProperty('--dial',t.dial);s.setProperty('--ink',t.ink);s.setProperty('--accent',t.accent||t.ink);s.setProperty('--hour-ink',t.hour||t.ink);s.setProperty('--sec-ink',t.second||t.accent||t.ink);s.setProperty('--day-ink',t.day||t.accent||t.ink);$('watch').dataset.colour=t.id;$('watch-model').textContent=t.model;$('watch-colour').textContent=t.colour;updateScales(t.id);applyBackground();try{localStorage.setItem('ressence-colour',t.id);}catch{}lastLabel='';}
+
+const dialBackgrounds={red:'oklch(.92 .012 25)',black:'oklch(.85 .006 250)',white:'oklch(.86 .018 245)',blue:'oklch(.24 .022 255)','rose-gold':'oklch(.90 .018 65)',multicolour:'oklch(.88 .004 250)'};
+const backgroundModes=['light','dark','dial','system'];
+const backgroundNames={light:'明',dark:'暗',dial:'跟随表盘',system:'跟随系统'};
+const backgroundIcons={light:'<circle cx="12" cy="12" r="4"/><path d="M12 2v2m0 16v2M2 12h2m16 0h2M5 5l1.5 1.5m11 11L19 19M5 19l1.5-1.5m11-11L19 5"/>',dark:'<path d="M20.5 13a8.5 8.5 0 0 1-9.5-9.5A8.5 8.5 0 1 0 20.5 13Z"/>',dial:'<circle cx="12" cy="12" r="9"/><circle cx="12" cy="15" r="4"/><circle cx="8" cy="8" r="2"/><circle cx="16" cy="8" r="2"/>',system:'<rect x="3" y="4" width="18" height="13" rx="2"/><path d="M8 21h8m-4-4v4"/>'};
+let backgroundMode=document.documentElement.dataset.background||'system';
+const systemDark=matchMedia('(prefers-color-scheme: dark)');
+function applyBackground(){
+ const root=document.documentElement,t=themes[themeIndex];
+ const dark=backgroundMode==='dark'||(backgroundMode==='system'&&systemDark.matches)||(backgroundMode==='dial'&&t.id==='blue');
+ root.dataset.background=backgroundMode;root.dataset.tone=dark?'dark':'light';
+ if(backgroundMode==='dial')root.style.setProperty('--page',dialBackgrounds[t.id]);else root.style.removeProperty('--page');
+ const next=backgroundModes[(backgroundModes.indexOf(backgroundMode)+1)%4];
+ const label=`背景：${backgroundNames[backgroundMode]}；点击切换为${backgroundNames[next]}`;
+ $('background-mode').setAttribute('aria-label',label);$('background-icon').innerHTML=backgroundIcons[backgroundMode];
+ document.querySelector('meta[name="theme-color"]').content=getComputedStyle(root).getPropertyValue('--page').trim();
+}
+$('background-mode').addEventListener('click',()=>{backgroundMode=backgroundModes[(backgroundModes.indexOf(backgroundMode)+1)%4];applyBackground();$('background-status').textContent=`背景已切换为${backgroundNames[backgroundMode]}`;try{localStorage.setItem('ressence-background',backgroundMode);}catch{}});
+systemDark.addEventListener('change',applyBackground);
+$('set-home').addEventListener('click',()=>{$('home-url').value=location.href;$('copy-status').textContent='';$('home-dialog').showModal();});
+$('close-home').addEventListener('click',()=>$('home-dialog').close());
+$('home-url').addEventListener('click',()=>$('home-url').select());
+$('copy-home').addEventListener('click',async()=>{try{await navigator.clipboard.writeText($('home-url').value);$('copy-status').textContent='地址已复制，可粘贴到浏览器的主页设置。';}catch{$('home-url').focus();$('home-url').select();$('copy-status').textContent='请长按选中的地址，或按 Ctrl+C / ⌘C 复制。';}});
+
 // At zero minutes the hours sit below centre; the two small satellites sit above.
 $('hour-position').setAttribute('transform','translate(0 73)');
 $('second-position').setAttribute('transform','translate(-102 -52)');
