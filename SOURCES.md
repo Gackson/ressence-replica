@@ -22,3 +22,8 @@ Shared colours are consolidated into six choices, using Slim geometry for Red, B
 - https://ressencewatches.com/products/type-1-round-rose-gold — manufacturer describes a 4N gold-plated dial with sunray finish; disc finish partition follows the user’s reference observations.
 - https://ressencewatches.com/products/type-1-slim-white — White metal hand-logo reference; front asset: RessenceTYPE1SlimWhiteWatch-Front, version 1744904587.
 - Fine concentric and radial SVG surface marks are a restrained procedural approximation, not sampled photographic textures.
+
+## Rose Gold material refinement (2026-09-10)
+
+- Rechecked https://ressencewatches.com/collections/type-1-round/products/type-1-round-rose-gold and its canonical product page, https://ressencewatches.com/products/type-1-round-rose-gold . The manufacturer specifies 4N gold plating and a sunray finish.
+- Compared the official Eshop-Productpage-TYPE-1-RG-01_900x.jpg front image above: muted champagne-copper field, directional reflections in the satellite centres, and separate silver-grey index annuli. Procedural textures interpret these material cues; no product photograph is embedded.

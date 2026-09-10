@@ -80,6 +80,7 @@ svg { display:block; width:100%; height:100%; overflow:visible; }
 
 /* Machining follows each disc's own centre, underneath its engravings. */
 .surface-finish { display:none; pointer-events:none; }
+[data-colour="rose-gold"] #dial:not(.night) .seam { stroke:#65564d; stroke-opacity:.55; stroke-width:.4; }
 [data-colour="blue"] #dial:not(.night) .finish-blue,
 [data-colour="rose-gold"] #dial:not(.night) .finish-rose { display:inline; }
 /* A satin face and silhouette-derived bevel keep the applied mark legible at dial size.
@@ -206,18 +207,63 @@ function buildSurfaceFinishes(){
  const dial=$('dial'),carrier=$('carrier');
  turnedFinish(finishLayer(dial,$('minutes-scale'),'blue'),178.5,209.4,.8);
  turnedFinish(finishLayer(carrier,carrier.firstElementChild,'blue'),0,177.6,.85);
- // The rose-gold main disc, including its minute track, is sunray brushed.
- radialFinish(finishLayer(dial,$('minutes-scale'),'rose'),178.5,209.4,.8);
- radialFinish(finishLayer(carrier,carrier.firstElementChild,'rose'),0,177.6,.85);
  for(const [name,outer,inner] of [['hour',96,68],['second',55,38],['day',55,38]]){
   const parent=$(name+'-upright'),before=$(name+'-scale');
   const blue=finishLayer(parent,before,'blue');
   turnedFinish(blue,0,inner-.3,1);
   radialFinish(blue,inner+.3,outer-.3,.85);
-  turnedFinish(finishLayer(parent,before,'rose'),0,outer-.3,.85);
  }
 }
 buildSurfaceFinishes();
+
+// Bake the rose-gold finish once, at bounded retina resolution. Continuous angular
+// lighting avoids wedge seams; subpixel tool marks avoid the old starburst lines.
+// Only the existing SVG disc transforms animate. No canvas work runs in tick().
+let roseFinishBuilt=false;
+function roseMetalTexture(outer,inner=0,silverFrom=0,phase=0){
+ const size=Math.min(1024,Math.ceil(outer*6)),scale=size/(outer*2);
+ const canvas=document.createElement('canvas');canvas.width=canvas.height=size;
+ const ctx=canvas.getContext('2d');if(!ctx)return null;
+ const pixels=ctx.createImageData(size,size),data=pixels.data;
+ const satellite=silverFrom>0,track=inner>0;
+ let seed=7213;
+ for(let y=0;y<size;y++)for(let x=0;x<size;x++){
+  const dx=(x+.5)/scale-outer,dy=(y+.5)/scale-outer;
+  const r=Math.hypot(dx,dy),edge=Math.min(outer-r,inner?r-inner:outer);
+  if(edge<=0)continue;
+  const a=Math.atan2(dy,dx),silver=satellite&&r>=silverFrom;
+  // A wide softbox reflection across the brushing, gently tilted per satellite.
+  const lobe=Math.cos(2*(a+1.38+phase));
+  const sheen=satellite?lobe*21+Math.pow(Math.max(0,lobe),6)*10:lobe*10;
+  const daylight=-(dx/outer)*4-(dy/outer)*(satellite?3:22);
+  seed=(Math.imul(seed,1664525)+1013904223)>>>0;
+  const grain=(seed/4294967296-.5)*3;
+  // Low-amplitude, irregular grooves: circular centres, radial main field/rings.
+  const grooves=satellite&&!silver
+   ? Math.sin(r*15+.65*Math.sin(r*3.7))*1.2
+   : (Math.sin(a*991+Math.sin(a*431)*2)+Math.sin(a*1297+r*.12))*1.3*Math.min(1,r/24);
+  const rolledEdge=track?8*Math.sin((r-inner)/(outer-inner)*Math.PI)-6:0;
+  const relief=satellite?Math.max(0,1-Math.abs(r-silverFrom)/.55):0;
+  const shade=sheen+daylight+grain+grooves+rolledEdge-relief*16;
+  const base=silver?[181,180,175]:satellite?[175,153,133]:[194,160,138];
+  const i=(y*size+x)*4;
+  for(let c=0;c<3;c++)data[i+c]=base[c]+shade;
+  data[i+3]=Math.min(1,edge*scale)*255;
+ }
+ ctx.putImageData(pixels,0,0);return canvas.toDataURL('image/png');
+}
+function buildRoseFinish(){
+ if(roseFinishBuilt)return;roseFinishBuilt=true;
+ const add=(parent,before,outer,inner=0,silverFrom=0,phase=0)=>{
+  const href=roseMetalTexture(outer,inner,silverFrom,phase);if(!href)return;
+  el('image',{href,x:-outer,y:-outer,width:outer*2,height:outer*2},finishLayer(parent,before,'rose'));
+ };
+ add($('dial'),$('minutes-scale'),209.4,178.5);
+ add($('carrier'),$('carrier').firstElementChild,177.6);
+ for(const [name,outer,inner,phase] of [['hour',96,68,.1],['second',55,38,-.14],['day',55,38,.2]]){
+  add($(name+'-upright'),$(name+'-scale'),outer-.3,0,inner,phase);
+ }
+}
 
 function updateScales(id,night=false){
 const round=id==='rose-gold'||id==='multicolour', multi=id==='multicolour';
@@ -253,7 +299,7 @@ const themes=[
 {id:'black',name:'Black 黑色',model:'RESSENCE TYPE 1 SLIM',colour:'BLACK',dial:'oklch(.205 .002 260)',ink:'oklch(.95 .008 100)'},
 {id:'white',name:'Slim White 白色',model:'RESSENCE TYPE 1 SLIM',colour:'WHITE',dial:'oklch(.949 .002 260)',ink:'oklch(.22 .002 260)'},
 {id:'blue',name:'Night Blue 夜蓝',model:'RESSENCE TYPE 1 SLIM',colour:'NIGHT BLUE',dial:'oklch(.335 .06 251)',ink:'oklch(.94 .009 100)',accent:'oklch(.715 .178 48)'},
-{id:'rose-gold',name:'Round Rose Gold 玫瑰金',model:'RESSENCE TYPE 1 ROUND',colour:'ROSE GOLD',dial:'oklch(.737 .07 53)',ink:'oklch(.975 .005 90)'},
+{id:'rose-gold',name:'Round Rose Gold 玫瑰金',model:'RESSENCE TYPE 1 ROUND',colour:'ROSE GOLD',dial:'#c0a28d',ink:'oklch(.975 .005 90)'},
 {id:'multicolour',name:'Round Multicolour 多彩',model:'RESSENCE TYPE 1 ROUND',colour:'MULTICOLOUR',dial:'oklch(.96 .002 260)',ink:'oklch(.965 .003 240)'}
 ];
 let themeIndex=0;try{const saved=localStorage.getItem('ressence-colour');let found=themes.findIndex(t=>t.id===saved);if(found>=0)themeIndex=found;}catch{}
@@ -291,6 +337,7 @@ function updateHands(id){
  }
 }
 function applyDialAppearance(night){
+ if(themes[themeIndex].id==='rose-gold'&&!night)buildRoseFinish();
  const t=themes[themeIndex],s=document.documentElement.style;
  $('dial').classList.toggle('night',night);
  s.setProperty('--dial',night?'oklch(.175 .008 235)':t.dial);
