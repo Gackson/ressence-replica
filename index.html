@@ -24,10 +24,20 @@ main { display:grid; place-items:center; align-content:center; gap:clamp(1.25rem
 .reset-time:disabled { cursor:default; }
 @media(hover:hover) and (pointer:fine) { .watch-stage.is-adjusted .reset-time:hover { opacity:1; } .watch-stage.is-dragging #watch { cursor:ew-resize; } }
 svg { display:block; width:100%; height:100%; overflow:visible; }
-.watch-meta { display:grid; justify-items:center; gap:.45rem; font-family:"SFMono-Regular",Consolas,"Liberation Mono",Menlo,monospace; text-align:center; }
+.watch-meta { display:grid; justify-items:center; gap:0; padding:12px; margin:-12px; font-family:"SFMono-Regular",Consolas,"Liberation Mono",Menlo,monospace; text-align:center; }
 .watch-model,.watch-colour { margin:0; line-height:1; letter-spacing:0; }
 .watch-model { font-size:.8125rem; font-weight:600; }
 .watch-colour { min-height:1em; font-size:.6875rem; font-weight:400; color:var(--page-muted); }
+
+.meta-row { display:grid; grid-template-columns:28px auto 28px; align-items:center; gap:6px; }
+.meta-row-colour { min-width:156px; }
+.meta-arrow { display:grid; place-items:center; width:28px; height:26px; padding:0; border:0; border-radius:50%; background:none; color:var(--page-ink); cursor:pointer; opacity:.55; transition:opacity 500ms cubic-bezier(.32,.72,0,1); -webkit-tap-highlight-color:transparent; touch-action:manipulation; }
+.meta-arrow svg { width:12px; height:12px; fill:none; stroke:currentColor; stroke-width:1.5; stroke-linecap:round; stroke-linejoin:round; }
+.meta-arrow:focus-visible { outline:2px solid var(--page-ink); outline-offset:0; opacity:1; }
+@media(hover:hover) and (pointer:fine) { .meta-arrow { opacity:0; } .watch-meta:hover .meta-arrow,.watch-meta:has(:focus-visible) .meta-arrow { opacity:.55; } .watch-meta .meta-arrow:hover,.watch-meta .meta-arrow:focus-visible { opacity:1; } }
+@media(hover:none), (pointer:coarse) { .meta-row { grid-template-columns:44px auto 44px; } .meta-arrow { width:44px; height:44px; } }
+@media(prefers-reduced-motion:reduce) { .meta-arrow { transition:none; } }
+
 .face { fill:var(--dial); transition:fill 450ms ease; }
 .ink { color:var(--ink); }
 .hour { color:var(--hour-ink); }
@@ -97,7 +107,7 @@ svg { display:block; width:100%; height:100%; overflow:visible; }
 <path id="minute-tip" class="colour-tip" d="M-1.15 -170 A1.15 1.15 0 0 1 1.15 -170 L1.35 -161 H-1.35 Z" fill="oklch(.86 .16 91)"/>
 </g>
 <circle class="crystal" r="210" fill="url(#convex)" pointer-events="none"/>
-</svg></button><button id="reset-time" class="reset-time" type="button" aria-label="回到当前时间" aria-hidden="true" tabindex="-1">↺</button></div><section class="watch-meta" aria-label="当前表盘"><p id="watch-model" class="watch-model">RESSENCE TYPE 1 SLIM</p><p id="watch-colour" class="watch-colour" aria-live="polite">RED</p></section></main>
+</svg></button><button id="reset-time" class="reset-time" type="button" aria-label="回到当前时间" aria-hidden="true" tabindex="-1">↺</button></div><section class="watch-meta" aria-label="当前表盘"><div class="meta-row"><button id="model-prev" class="meta-arrow" type="button" aria-label="上一个表款"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m14 6-6 6 6 6"/></svg></button><p id="watch-model" class="watch-model" aria-live="polite">RESSENCE TYPE 1 SLIM</p><button id="model-next" class="meta-arrow" type="button" aria-label="下一个表款"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m10 6 6 6-6 6"/></svg></button></div><div class="meta-row meta-row-colour"><button id="colour-prev" class="meta-arrow" type="button" aria-label="上一个颜色"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m14 6-6 6 6 6"/></svg></button><p id="watch-colour" class="watch-colour" aria-live="polite">RED</p><button id="colour-next" class="meta-arrow" type="button" aria-label="下一个颜色"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m10 6 6 6-6 6"/></svg></button></div></section></main>
 <nav class="corner-tools" aria-label="页面工具"><div class="tool-row">
 <a class="tool" href="https://github.com/Gackson" target="_blank" rel="noopener noreferrer" aria-label="GitHub 主页（在新标签页打开）"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 19c-4 1.2-4-2-5-2.5M15 22v-3.5c0-1 .1-1.6-.5-2.2 3.2-.4 6.5-1.6 6.5-7A5.4 5.4 0 0 0 19.5 5c.2-1 .2-2-.1-3-1.5 0-3.2 1-4 1.6a14 14 0 0 0-6.8 0C7.8 3 6.1 2 4.6 2c-.3 1-.3 2-.1 3A5.4 5.4 0 0 0 3 9.3c0 5.4 3.3 6.6 6.5 7-.6.6-.5 1.2-.5 2.2V22"/></svg></a>
 <button class="tool" id="set-home" type="button" aria-label="设为浏览器主页" aria-haspopup="dialog"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m3 10 9-7 9 7M5 9v12h5v-7h4v7h5V9"/></svg></button>
@@ -163,7 +173,27 @@ const themes=[
 {id:'multicolour',name:'Round Multicolour 多彩',model:'RESSENCE TYPE 1 ROUND',colour:'MULTICOLOUR',dial:'oklch(.96 .002 260)',ink:'oklch(.965 .003 240)'}
 ];
 let themeIndex=0;try{const saved=localStorage.getItem('ressence-colour');let found=themes.findIndex(t=>t.id===saved);if(found>=0)themeIndex=found;}catch{}
-function setTheme(){const t=themes[themeIndex],s=document.documentElement.style;s.setProperty('--dial',t.dial);s.setProperty('--ink',t.ink);s.setProperty('--accent',t.accent||t.ink);s.setProperty('--hour-ink',t.hour||t.ink);s.setProperty('--sec-ink',t.second||t.ink);s.setProperty('--day-ink',t.day||t.ink);$('watch').dataset.colour=t.id;$('watch-model').textContent=t.model;$('watch-colour').textContent=t.colour;updateHands(t.id);applyBackground();try{localStorage.setItem('ressence-colour',t.id);}catch{}lastLabel='';}
+const modelNames=[...new Set(themes.map(t=>t.model))];
+const rememberedColours=new Map();
+function setTheme(){const t=themes[themeIndex],s=document.documentElement.style;rememberedColours.set(t.model,t.id);s.setProperty('--dial',t.dial);s.setProperty('--ink',t.ink);s.setProperty('--accent',t.accent||t.ink);s.setProperty('--hour-ink',t.hour||t.ink);s.setProperty('--sec-ink',t.second||t.ink);s.setProperty('--day-ink',t.day||t.ink);$('watch').dataset.colour=t.id;$('watch-model').textContent=t.model;$('watch-colour').textContent=t.colour;updateHands(t.id);applyBackground();try{localStorage.setItem('ressence-colour',t.id);}catch{}lastLabel='';}
+
+
+function cycleModel(direction){
+ const current=themes[themeIndex].model;
+ const model=modelNames[(modelNames.indexOf(current)+direction+modelNames.length)%modelNames.length];
+ const remembered=rememberedColours.get(model);
+ themeIndex=themes.findIndex(t=>t.model===model&&(!remembered||t.id===remembered));
+ setTheme();render(displayDate());
+}
+function cycleColour(direction){
+ const choices=themes.map((t,i)=>t.model===themes[themeIndex].model?i:-1).filter(i=>i>=0);
+ themeIndex=choices[(choices.indexOf(themeIndex)+direction+choices.length)%choices.length];
+ setTheme();render(displayDate());
+}
+for(const [suffix,direction] of [['prev',-1],['next',1]]){
+ $('model-'+suffix).addEventListener('click',()=>cycleModel(direction));
+ $('colour-'+suffix).addEventListener('click',()=>cycleColour(direction));
+}
 
 // Round hands have a genuine unpainted gap between the metal body and the tip.
 const slimHands=Object.fromEntries(['minute','hour','second','day'].map(id=>[id,$(id+'-hand').getAttribute('d')]));
