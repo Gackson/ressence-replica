@@ -9,3 +9,9 @@ Retrieved 2026-09-09.
 - https://ressencewatches.com/cdn/shop/files/RessenceTYPE1RoundMulticoulourWatch-Front_900x.jpg?v=1744903019 — coloured rings and bar indices.
 
 Shared colours are consolidated into six choices, using Slim geometry for Red, Black, White and Night Blue and Round markings for Rose Gold and Multicolour. This is a browser interpretation of the dial, not a photorealistic simulation of the case, sapphire, or brushed metal.
+
+## Hand inserts and night display
+
+- Official Rose Gold front image (same source above), enlarged: pale hand-tip inserts separated from the silver bodies; green seconds zero marker.
+- https://cdn.shopify.com/s/files/1/0560/5493/9712/files/1-0-night.png?v=1684268885 — official night rendering embedded on the TYPE 1 Round page; blue-cyan illuminated markings and hands on a dark face. The webpage applies this visual treatment to each implemented colourway rather than simulating physical lume charging or decay.
+- https://ressencewatches.com/pages/type-1-slim — also includes the official night/day feature.
