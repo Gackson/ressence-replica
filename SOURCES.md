@@ -15,3 +15,10 @@ Shared colours are consolidated into six choices, using Slim geometry for Red, B
 - Official Rose Gold front image (same source above), enlarged: pale hand-tip inserts separated from the silver bodies; green seconds zero marker.
 - https://cdn.shopify.com/s/files/1/0560/5493/9712/files/1-0-night.png?v=1684268885 — official night rendering embedded on the TYPE 1 Round page; blue-cyan illuminated markings and hands on a dark face. The webpage applies this visual treatment to each implemented colourway rather than simulating physical lume charging or decay.
 - https://ressencewatches.com/pages/type-1-slim — also includes the official night/day feature.
+
+## Surface finishes (2026-09-10)
+
+- https://ressencewatches.com/products/type-1-slim-night-blue — Night Blue material reference; front asset: RessenceTYPE1SlimNightBlueWatch-Front, version 1744872708.
+- https://ressencewatches.com/products/type-1-round-rose-gold — manufacturer describes a 4N gold-plated dial with sunray finish; disc finish partition follows the user’s reference observations.
+- https://ressencewatches.com/products/type-1-slim-white — White metal hand-logo reference; front asset: RessenceTYPE1SlimWhiteWatch-Front, version 1744904587.
+- Fine concentric and radial SVG surface marks are a restrained procedural approximation, not sampled photographic textures.

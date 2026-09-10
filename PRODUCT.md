@@ -13,7 +13,7 @@ Recreate the orbital dial with live local hours, minutes, seconds and weekday. C
 Mechanical, exact, quiet. Reference: the official TYPE 1 Slim Red and TYPE 1 Round.
 
 ## Anti-references
-No straps, headings, persistent explanatory text, external decoration or invented branding. A discreet corner toolbar provides GitHub, homepage setup guidance and background preferences.
+No straps, headings, persistent explanatory text, external decoration or invented branding. A discreet corner toolbar provides GitHub, a personal homepage link and background preferences.
 
 ## Design Principles
 - The dial is the entire interface.
