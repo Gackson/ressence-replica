@@ -49,6 +49,8 @@ svg { display:block; width:100%; height:100%; overflow:visible; }
 [data-colour="multicolour"] .colour-tip,[data-colour="rose-gold"] .colour-tip { display:block; }
 [data-colour="rose-gold"] .colour-tip { fill:var(--ink); }
 .round .hand { fill:oklch(.74 .013 250); }
+[data-colour="rose-gold"] { --rose-silver:#c5c3bd; }
+[data-colour="rose-gold"] #dial:not(.night) .hand { fill:var(--rose-silver); }
 .round .seam { stroke:oklch(.3 0 0 / .35); }
 .seam { fill:none; stroke:oklch(.1 0 0 / .52); stroke-width:.52; }
 .hand { fill:currentColor; stroke:oklch(.15 0 0 / .24); stroke-width:.35; }
@@ -220,32 +222,33 @@ buildSurfaceFinishes();
 // lighting avoids wedge seams; subpixel tool marks avoid the old starburst lines.
 // Only the existing SVG disc transforms animate. No canvas work runs in tick().
 let roseFinishBuilt=false;
-function roseMetalTexture(outer,inner=0,silverFrom=0,phase=0){
+function roseMetalTexture(outer,inner=0,centreRadius=0,phase=0){
  const size=Math.min(1024,Math.ceil(outer*6)),scale=size/(outer*2);
  const canvas=document.createElement('canvas');canvas.width=canvas.height=size;
  const ctx=canvas.getContext('2d');if(!ctx)return null;
  const pixels=ctx.createImageData(size,size),data=pixels.data;
- const satellite=silverFrom>0,track=inner>0;
+ const satellite=centreRadius>0,track=inner>0;
  let seed=7213;
  for(let y=0;y<size;y++)for(let x=0;x<size;x++){
   const dx=(x+.5)/scale-outer,dy=(y+.5)/scale-outer;
-  const r=Math.hypot(dx,dy),edge=Math.min(outer-r,inner?r-inner:outer);
+  // Leave the silver annulus transparent: its flat SVG band shares the hand colour.
+  const r=Math.hypot(dx,dy),edge=Math.min((satellite?centreRadius:outer)-r,inner?r-inner:outer);
   if(edge<=0)continue;
-  const a=Math.atan2(dy,dx),silver=satellite&&r>=silverFrom;
+  const a=Math.atan2(dy,dx);
   // A wide softbox reflection across the brushing, gently tilted per satellite.
   const lobe=Math.cos(2*(a+1.38+phase));
   const sheen=satellite?lobe*21+Math.pow(Math.max(0,lobe),6)*10:lobe*10;
   const daylight=-(dx/outer)*4-(dy/outer)*(satellite?3:22);
   seed=(Math.imul(seed,1664525)+1013904223)>>>0;
   const grain=(seed/4294967296-.5)*3;
-  // Low-amplitude, irregular grooves: circular centres, radial main field/rings.
-  const grooves=satellite&&!silver
+  // Low-amplitude, irregular grooves: circular centres, radial main field.
+  const grooves=satellite
    ? Math.sin(r*15+.65*Math.sin(r*3.7))*1.2
    : (Math.sin(a*991+Math.sin(a*431)*2)+Math.sin(a*1297+r*.12))*1.3*Math.min(1,r/24);
   const rolledEdge=track?8*Math.sin((r-inner)/(outer-inner)*Math.PI)-6:0;
-  const relief=satellite?Math.max(0,1-Math.abs(r-silverFrom)/.55):0;
+  const relief=satellite?Math.max(0,1-Math.abs(r-centreRadius)/.55):0;
   const shade=sheen+daylight+grain+grooves+rolledEdge-relief*16;
-  const base=silver?[181,180,175]:satellite?[175,153,133]:[194,160,138];
+  const base=satellite?[175,153,133]:[194,160,138];
   const i=(y*size+x)*4;
   for(let c=0;c<3;c++)data[i+c]=base[c]+shade;
   data[i+3]=Math.min(1,edge*scale)*255;
@@ -254,8 +257,8 @@ function roseMetalTexture(outer,inner=0,silverFrom=0,phase=0){
 }
 function buildRoseFinish(){
  if(roseFinishBuilt)return;roseFinishBuilt=true;
- const add=(parent,before,outer,inner=0,silverFrom=0,phase=0)=>{
-  const href=roseMetalTexture(outer,inner,silverFrom,phase);if(!href)return;
+ const add=(parent,before,outer,inner=0,centreRadius=0,phase=0)=>{
+  const href=roseMetalTexture(outer,inner,centreRadius,phase);if(!href)return;
   el('image',{href,x:-outer,y:-outer,width:outer*2,height:outer*2},finishLayer(parent,before,'rose'));
  };
  add($('dial'),$('minutes-scale'),209.4,178.5);
@@ -269,7 +272,7 @@ function updateScales(id,night=false){
 const round=id==='rose-gold'||id==='multicolour', multi=id==='multicolour';
 $('dial').classList.toggle('round',round);
 $('hour-scale').removeAttribute('transform');
-const bands=multi?['oklch(.39 .07 228)','oklch(.51 .12 137)','oklch(.86 .16 91)','oklch(.56 .18 27)']:round?['none','oklch(.75 .007 40)','oklch(.76 .007 40)','oklch(.76 .007 40)']:['none','none','none','none'];
+const bands=multi?['oklch(.39 .07 228)','oklch(.51 .12 137)','oklch(.86 .16 91)','oklch(.56 .18 27)']:round?['none','var(--rose-silver)','var(--rose-silver)','var(--rose-silver)']:['none','none','none','none'];
 if(night)for(let i=0;i<bands.length;i++)if(bands[i]!=='none')bands[i]='oklch(.205 .008 235)';
 ['outer','hour','second','day'].forEach((n,i)=>$(n+'-band').setAttribute('stroke',bands[i]));
 for(let name of ['minutes','hour','second','day'])$(name+'-scale').replaceChildren();
